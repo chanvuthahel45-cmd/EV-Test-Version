@@ -6,7 +6,7 @@ import random
 import time
 
 # ==================================================
-# PAGE CONFIGURATION - ORIGINAL CLEAN DESIGN
+# PAGE CONFIGURATION - CLEAN LIGHT DESIGN
 # ==================================================
 
 st.set_page_config(
@@ -15,60 +15,60 @@ st.set_page_config(
     layout="wide"
 )
 
-# Original clean CSS
+# Clean CSS with light colors
 st.markdown("""
 <style>
     /* Clean, simple styling */
     .main {
-        background: #f0f2f6;
+        background: #f8f9fa;
     }
-
+    
     /* Simple card */
     .card {
         background: white;
         border-radius: 8px;
         padding: 1.25rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        border: 1px solid #e0e0e0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        border: 1px solid #e8eaed;
         margin-bottom: 1rem;
     }
-
+    
     /* Simple metric */
     .metric-box {
         background: white;
         border-radius: 6px;
         padding: 1rem;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #e8eaed;
         text-align: center;
     }
-
+    
     .metric-value {
         font-size: 1.8rem;
         font-weight: 600;
-        color: #1a1a2e;
+        color: #2c3e50;
     }
-
+    
     .metric-label {
         font-size: 0.75rem;
-        color: #6c757d;
+        color: #7f8c8d;
         text-transform: uppercase;
         letter-spacing: 0.3px;
     }
-
+    
     /* Sidebar */
     .css-1d391kg {
         background: #ffffff;
-        border-right: 1px solid #e0e0e0;
+        border-right: 1px solid #e8eaed;
     }
-
+    
     /* Headers */
     h1, h2, h3, h4 {
-        color: #1a1a2e;
+        color: #2c3e50;
     }
-
+    
     /* Buttons */
     .stButton > button {
-        background: #1a1a2e;
+        background: #2c3e50;
         color: white;
         border: none;
         border-radius: 6px;
@@ -76,55 +76,50 @@ st.markdown("""
         font-weight: 500;
         transition: all 0.2s;
     }
-
+    
     .stButton > button:hover {
-        background: #2d2d44;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        background: #34495e;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-
+    
     /* Divider */
     .divider {
         border: none;
-        border-top: 1px solid #e0e0e0;
+        border-top: 1px solid #e8eaed;
         margin: 1.5rem 0;
     }
-
+    
     /* Info box */
     .info-box {
         background: #f8f9fa;
         border-radius: 8px;
         padding: 1.5rem;
-        border: 1px solid #e0e0e0;
-        border-left: 4px solid #1a1a2e;
+        border: 1px solid #e8eaed;
+        border-left: 4px solid #2c3e50;
     }
-
+    
     /* Footer */
     .footer {
         text-align: center;
-        color: #6c757d;
+        color: #7f8c8d;
         font-size: 0.8rem;
         padding: 2rem 0 1rem 0;
-        border-top: 1px solid #e0e0e0;
+        border-top: 1px solid #e8eaed;
         margin-top: 2rem;
     }
-
+    
     /* Dataframe */
     .dataframe {
         border-radius: 6px;
         overflow: hidden;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #e8eaed;
     }
-
+    
     /* Progress bar */
     .stProgress > div > div {
-        background: #1a1a2e;
+        background: #2c3e50;
         border-radius: 4px;
     }
-
-    /* Status indicators */
-    .status-ok { color: #28a745; }
-    .status-warning { color: #ffc107; }
-    .status-danger { color: #dc3545; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -154,35 +149,34 @@ CHARGING_TYPES = {
 
 SCENARIOS = {
     "Residential": {
-        "arrival": 20, "arrival_std": 2,
+        "arrival": 20, "arrival_std": 2, 
         "soc": 60, "soc_std": 20,
         "icon": "🏠",
         "color": "#3B82F6",
         "description": "Evening charging at home"
     },
     "Office": {
-        "arrival": 9, "arrival_std": 1.5,
+        "arrival": 9, "arrival_std": 1.5, 
         "soc": 70, "soc_std": 15,
         "icon": "🏢",
         "color": "#10B981",
         "description": "Daytime workplace charging"
     },
     "Public": {
-        "arrival": 12, "arrival_std": 6,
+        "arrival": 12, "arrival_std": 6, 
         "soc": 30, "soc_std": 15,
         "icon": "📍",
         "color": "#F59E0B",
         "description": "Opportunistic public charging"
     },
     "Mixed": {
-        "arrival": None, "arrival_std": None,
+        "arrival": None, "arrival_std": None, 
         "soc": None, "soc_std": None,
         "icon": "🔄",
         "color": "#8B5CF6",
         "description": "Combined: Residential + Office + Public"
     }
 }
-
 
 # ==================================================
 # HELPER FUNCTIONS
@@ -193,46 +187,45 @@ def get_car_specs(model):
         return CAR_MODELS[model]
     return CAR_MODELS["Custom"]
 
-
 def generate_ev(config):
     scenario = config["scenario"]
     model = config["model"]
     charge_type = config["charge_type"]
-
+    
     if scenario == "Mixed":
         sub_scenarios = ["Residential", "Office", "Public"]
-        weights = [config.get("res_weight", 0.4),
-                   config.get("off_weight", 0.35),
+        weights = [config.get("res_weight", 0.4), 
+                   config.get("off_weight", 0.35), 
                    config.get("pub_weight", 0.25)]
         scenario = np.random.choice(sub_scenarios, p=weights)
         sc_config = SCENARIOS[scenario]
     else:
         sc_config = SCENARIOS[scenario]
-
+    
     arrival = np.clip(
         np.random.normal(sc_config["arrival"], sc_config["arrival_std"]),
         0, 23
     )
-
+    
     soc = np.clip(
         np.random.normal(sc_config["soc"], sc_config["soc_std"]),
         10, 100
     )
-
+    
     specs = get_car_specs(model)
     battery = specs["battery"] * np.random.uniform(0.95, 1.05)
     max_rate = specs["max_charge_rate"] * np.random.uniform(0.90, 1.10)
-
+    
     if charge_type in CHARGING_TYPES:
         ct_config = CHARGING_TYPES[charge_type]
         power = np.random.uniform(ct_config["range"][0], ct_config["range"][1])
     else:
         power = 7.0
-
+    
     energy_needed = battery * (100 - soc) / 100
     charge_rate = min(power, max_rate)
     duration = energy_needed / charge_rate if charge_rate > 0 else 0
-
+    
     return {
         "scenario": scenario,
         "model": model,
@@ -245,39 +238,37 @@ def generate_ev(config):
         "energy": energy_needed
     }
 
-
 def run_simulation(config_list, iterations=1000):
     all_profiles = []
     last_evs = None
-
+    
     for i in range(iterations):
         hourly = np.zeros(24)
         evs = []
-
+        
         for config in config_list:
             count = config["count"]
             for _ in range(count):
                 ev = generate_ev(config)
                 evs.append(ev)
-
+                
                 start = int(ev["arrival"])
                 for h in range(int(np.ceil(ev["duration"]))):
                     hourly[(start + h) % 24] += ev["charge_rate"]
-
+        
         all_profiles.append(hourly)
         if i == iterations - 1:
             last_evs = evs
-
+    
     return np.array(all_profiles), last_evs
 
-
 # ==================================================
-# SIDEBAR - ORIGINAL STYLE
+# SIDEBAR
 # ==================================================
 
 with st.sidebar:
     st.markdown("### ⚙️ Settings")
-
+    
     # Scenario Selection
     scenario = st.selectbox(
         "Scenario",
@@ -285,12 +276,12 @@ with st.sidebar:
         format_func=lambda x: f"{SCENARIOS[x]['icon']} {x}"
     )
     st.caption(SCENARIOS[scenario]["description"])
-
+    
     st.markdown("---")
-
+    
     # EV Configuration
     st.markdown("### 🚗 EV Configuration")
-
+    
     if 'fleet_configs' not in st.session_state:
         if scenario == "Mixed":
             st.session_state.fleet_configs = [
@@ -305,14 +296,14 @@ with st.sidebar:
             st.session_state.fleet_configs = [
                 {"scenario": scenario, "model": "BYD Atto 3", "count": 50, "charge_type": "Level 2"}
             ]
-
+    
     total_evs = 0
     for idx, config in enumerate(st.session_state.fleet_configs):
         with st.container():
             st.markdown(f"**Group {idx + 1}**")
-
+            
             cols = st.columns([2, 1.5, 1.2, 0.5])
-
+            
             with cols[0]:
                 model = st.selectbox(
                     "Model",
@@ -323,7 +314,7 @@ with st.sidebar:
                 )
                 specs = get_car_specs(model)
                 st.caption(f"{specs['battery']:.0f} kWh | {specs['max_charge_rate']:.0f} kW")
-
+            
             with cols[1]:
                 charge_type = st.selectbox(
                     "Charge",
@@ -331,7 +322,7 @@ with st.sidebar:
                     key=f"charge_{idx}",
                     label_visibility="collapsed"
                 )
-
+            
             with cols[2]:
                 count = st.number_input(
                     "Qty",
@@ -341,19 +332,19 @@ with st.sidebar:
                     key=f"count_{idx}",
                     label_visibility="collapsed"
                 )
-
+            
             with cols[3]:
                 if len(st.session_state.fleet_configs) > 1:
                     if st.button("✕", key=f"remove_{idx}"):
                         st.session_state.fleet_configs.pop(idx)
                         st.rerun()
-
+            
             st.session_state.fleet_configs[idx]["model"] = model
             st.session_state.fleet_configs[idx]["count"] = count
             st.session_state.fleet_configs[idx]["charge_type"] = charge_type
-
+            
             total_evs += count
-
+    
     col1, col2 = st.columns([2, 1])
     with col1:
         if st.button("➕ Add Model", use_container_width=True):
@@ -367,26 +358,26 @@ with st.sidebar:
                     {"scenario": scenario, "model": "Tesla Model 3", "count": 10, "charge_type": "Level 2"}
                 )
             st.rerun()
-
+    
     st.caption(f"**Total EVs:** {total_evs}")
-
+    
     st.markdown("---")
-
+    
     # Simulation Parameters
     st.markdown("### ⚙️ Simulation")
-
+    
     transformer_kva = st.number_input("Transformer (kVA)", 100, 5000, 1000, 100)
     iterations = st.slider("Monte Carlo Iterations", 100, 10000, 1000, 100)
-
+    
     if iterations >= 5000:
         st.success("✅ High confidence")
     elif iterations >= 1000:
         st.info("ℹ️ Good confidence")
     else:
         st.warning("⚠️ Lower confidence")
-
+    
     st.markdown("---")
-
+    
     # Fleet Summary
     if st.session_state.fleet_configs:
         summary_data = []
@@ -398,9 +389,9 @@ with st.sidebar:
                 "Charge": cfg["charge_type"]
             })
         st.dataframe(pd.DataFrame(summary_data), hide_index=True, use_container_width=True)
-
+    
     st.markdown("---")
-
+    
     run = st.button("🚀 Run Simulation", type="primary", use_container_width=True)
 
 # ==================================================
@@ -416,7 +407,7 @@ if run:
     else:
         with st.spinner(f"Running {iterations:,} Monte Carlo iterations..."):
             start_time = time.time()
-
+            
             configs = []
             for cfg in st.session_state.fleet_configs:
                 configs.append({
@@ -428,37 +419,37 @@ if run:
                     "off_weight": cfg.get("off_weight", 0.35),
                     "pub_weight": cfg.get("pub_weight", 0.25)
                 })
-
+            
             profiles, last_evs = run_simulation(configs, iterations)
-
+            
             mean_load = np.mean(profiles, axis=0)
             std_load = np.std(profiles, axis=0)
             lower = np.percentile(profiles, 5, axis=0)
             upper = np.percentile(profiles, 95, axis=0)
-
+            
             peak_load = np.max(mean_load)
             peak_hour = np.argmax(mean_load)
             total_energy = np.sum(mean_load)
             avg_load = np.mean(mean_load)
             load_factor = avg_load / peak_load if peak_load > 0 else 0
-
+            
             transformer_kw = transformer_kva * 0.9
             utilization = peak_load / transformer_kw if transformer_kw > 0 else 0
-
+            
             model_counts = {}
             model_energy = {}
             charge_counts = {}
             charge_energy = {}
-
+            
             for ev in last_evs:
                 model = ev["model"]
                 model_counts[model] = model_counts.get(model, 0) + 1
                 model_energy[model] = model_energy.get(model, 0) + ev["energy"]
-
+                
                 ct = ev["charge_type"]
                 charge_counts[ct] = charge_counts.get(ct, 0) + 1
                 charge_energy[ct] = charge_energy.get(ct, 0) + ev["energy"]
-
+            
             end_time = time.time()
             sim_time = end_time - start_time
 
@@ -469,10 +460,10 @@ if run:
 if run and st.session_state.fleet_configs:
     scenario_color = SCENARIOS[scenario]["color"]
     scenario_icon = SCENARIOS[scenario]["icon"]
-
+    
     st.markdown(f"### {scenario_icon} {scenario} Scenario Results")
     st.caption(f"{iterations:,} iterations · {total_evs:,} EVs · {sim_time:.1f}s")
-
+    
     # KPIs
     col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("🚗 EVs", f"{total_evs:,}")
@@ -481,50 +472,58 @@ if run and st.session_state.fleet_configs:
     col4.metric("📊 Load Factor", f"{load_factor:.1%}")
     col5.metric("🏭 Transformer", f"{utilization:.0%}",
                 "⚠️ Overload" if utilization > 1 else "✅ OK" if utilization < 0.8 else "🟡 High")
-
+    
     st.divider()
-
-    # Load Profile Chart
+    
+    # ==================================================
+    # LOAD PROFILE CHART - LIGHTER COLORS
+    # ==================================================
+    
     hours = np.arange(24)
-
+    
     fig = go.Figure()
-
-    # Confidence bands
+    
+    # Lighter 95% Confidence band - very soft blue
     fig.add_trace(go.Scatter(
         x=np.concatenate([hours, hours[::-1]]),
         y=np.concatenate([upper, lower[::-1]]),
         fill='toself',
-        fillcolor=f'rgba(26, 26, 46, 0.1)',
+        fillcolor='rgba(59, 130, 246, 0.12)',  # Very light blue
         line=dict(width=0),
         name='95% Confidence'
     ))
-
+    
+    # Lighter ±1σ band - softer blue
     fig.add_trace(go.Scatter(
         x=np.concatenate([hours, hours[::-1]]),
         y=np.concatenate([mean_load + std_load, (mean_load - std_load)[::-1]]),
         fill='toself',
-        fillcolor=f'rgba(26, 26, 46, 0.08)',
+        fillcolor='rgba(59, 130, 246, 0.08)',  # Even lighter blue
         line=dict(width=0),
         name='±1σ'
     ))
-
+    
+    # Main line - darker for contrast
     fig.add_trace(go.Scatter(
         x=hours,
         y=mean_load,
         mode='lines+markers',
         name='Total Load',
-        line=dict(color='#1a1a2e', width=2.5),
-        marker=dict(size=6, color='#1a1a2e')
+        line=dict(color='#1a56db', width=2.5),  # Rich blue for main line
+        marker=dict(size=6, color='#1a56db')
     ))
-
-    # Transformer limit
+    
+    # Transformer limit - softer red
     fig.add_hline(
         y=transformer_kw,
         line_dash="dash",
-        line_color="#dc3545",
-        annotation_text=f"Limit: {transformer_kw:.0f} kW"
+        line_color="#ef4444",
+        line_width=2,
+        annotation_text=f"Limit: {transformer_kw:.0f} kW",
+        annotation_font_size=11,
+        annotation_font_color="#dc2626"
     )
-
+    
     fig.update_layout(
         title=f"24-Hour Load Profile - {scenario} Scenario",
         xaxis_title="Hour of Day",
@@ -532,54 +531,86 @@ if run and st.session_state.fleet_configs:
         height=500,
         hovermode="x unified",
         template="plotly_white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        legend=dict(
+            orientation="h", 
+            yanchor="bottom", 
+            y=1.02, 
+            xanchor="right", 
+            x=1,
+            bgcolor='rgba(255,255,255,0.8)'
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(family="Arial, sans-serif", size=12),
+        xaxis=dict(
+            gridcolor='#f0f0f0',
+            linecolor='#e0e0e0',
+            showline=True,
+            linewidth=1
+        ),
+        yaxis=dict(
+            gridcolor='#f0f0f0',
+            linecolor='#e0e0e0',
+            showline=True,
+            linewidth=1
+        )
     )
-
+    
     st.plotly_chart(fig, use_container_width=True)
-
+    
     # Analysis Section
     st.subheader("📊 Detailed Analysis")
-
+    
     col1, col2 = st.columns(2)
-
+    
     with col1:
         if model_counts:
+            # Lighter color palette for pie chart
+            light_colors = ['#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe', '#eff6ff']
             fig_models = go.Figure(data=[go.Pie(
                 labels=list(model_counts.keys()),
                 values=list(model_counts.values()),
                 hole=0.3,
                 textinfo="label+percent",
-                marker=dict(colors=['#1a1a2e', '#2d2d44', '#495057', '#6c757d', '#adb5bd'])
+                textfont_size=12,
+                marker=dict(colors=light_colors, line=dict(color='white', width=2))
             )])
             fig_models.update_layout(
                 title="EV Models by Count",
                 height=350,
-                template="plotly_white"
+                template="plotly_white",
+                plot_bgcolor='white',
+                paper_bgcolor='white'
             )
             st.plotly_chart(fig_models, use_container_width=True)
-
+    
     with col2:
         if charge_counts:
+            # Lighter colors for charging types
+            charge_colors = ['#93c5fd', '#6ee7b7', '#fca5a5']
             fig_charge = go.Figure(data=[go.Pie(
                 labels=list(charge_counts.keys()),
                 values=list(charge_counts.values()),
                 hole=0.3,
                 textinfo="label+percent",
-                marker=dict(colors=['#6c757d', '#495057', '#1a1a2e'])
+                textfont_size=12,
+                marker=dict(colors=charge_colors, line=dict(color='white', width=2))
             )])
             fig_charge.update_layout(
                 title="Charging Types",
                 height=350,
-                template="plotly_white"
+                template="plotly_white",
+                plot_bgcolor='white',
+                paper_bgcolor='white'
             )
             st.plotly_chart(fig_charge, use_container_width=True)
-
+    
     # Export
     st.divider()
     st.subheader("📥 Export Data")
-
+    
     col1, col2, col3 = st.columns(3)
-
+    
     with col1:
         csv_load = pd.DataFrame({
             "Hour": hours,
@@ -589,13 +620,13 @@ if run and st.session_state.fleet_configs:
             "Upper_95%": upper
         }).to_csv(index=False).encode()
         st.download_button("📊 Load Profile", csv_load, "load_profile.csv", "text/csv")
-
+    
     with col2:
         if last_evs:
             df_ev = pd.DataFrame(last_evs)
             csv_ev = df_ev.to_csv(index=False).encode()
             st.download_button("🚗 EV Data", csv_ev, "ev_data.csv", "text/csv")
-
+    
     with col3:
         summary_data = []
         for cfg in st.session_state.fleet_configs:
@@ -609,11 +640,11 @@ if run and st.session_state.fleet_configs:
         st.download_button("📋 Fleet Summary", csv_summary, "fleet_summary.csv", "text/csv")
 
 else:
-    # Welcome - Original style with scenario comparison
+    # Welcome
     st.info("👈 Configure your simulation in the sidebar and click 'Run Simulation'")
-
+    
     st.subheader("📊 Scenario Comparison")
-
+    
     comp_data = []
     for name, config in SCENARIOS.items():
         if name != "Mixed":
@@ -630,28 +661,28 @@ else:
                 "Typical SOC": "Mixed distribution",
                 "Use Case": config['description']
             })
-
+    
     st.dataframe(pd.DataFrame(comp_data), hide_index=True, use_container_width=True)
-
+    
     with st.expander("📖 How Mixed Scenario Works"):
         st.markdown("""
         **Mixed Scenario Logic:**
-
+        
         1. **Residential (40% default):** 
            - Evening arrivals (20:00 ± 2h)
            - Higher SOC (60% ± 20%)
            - Home charging pattern
-
+        
         2. **Office (35% default):**
            - Morning arrivals (9:00 ± 1.5h)
            - Highest SOC (70% ± 15%)
            - Workplace charging pattern
-
+        
         3. **Public (25% default):**
            - Distributed arrivals (12:00 ± 6h)
            - Lowest SOC (30% ± 15%)
            - Opportunistic charging
-
+        
         **The simulation:**
         - Randomly assigns each EV to a scenario based on weights
         - Uses scenario-specific arrival and SOC distributions
